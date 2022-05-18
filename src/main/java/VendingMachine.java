@@ -1,10 +1,11 @@
 import coins.Coin;
 import coins.CoinReturn;
+import coins.CoinType;
 import coins.ITotalCoins;
 import drawers.Drawer;
 import drawers.DrawerCode;
 import products.Product;
-import java.lang.Double;
+//import java.lang.Double;
 
 import java.util.ArrayList;
 
@@ -85,16 +86,34 @@ public class VendingMachine implements ITotalCoins {
         return calculateCoinsTotal() - price;
     }
 
-//    public ArrayList<Coin> allocateCoinsToReturn(){
-//
-//    }
+    public void allocateCoinsToReturn(double change){
+        Coin coin;
+        while (change > 0){
+            System.out.println("change > 0");
+            for (CoinType coinType : CoinType.values()){
+                System.out.println(coinType);
+                if (change > coinType.getValue()) {
+                    coin = new Coin(coinType);
+                    coinReturn.addCoin(coin);
+                    System.out.println(coinReturn.calculateCoinsTotal());
+                    change -= Math.round(coinType.getValue());
+//                    System.out.println(change);
+
+                }
+            }
+            if (Math.round(change) == 0) {
+                break;
+            }
+        }
+    }
 
     public Product buyProduct(DrawerCode code){
         Drawer drawer = getDrawerFromCode(code);
         double price = getPriceFromCode(code);
-        if(compare(calculateCoinsTotal(), price) > 0  && price > 0){ //
-            double change = calculateChangeToReturn(price);
+        if(Double.compare(calculateCoinsTotal(), price) >= 0 && price > 0){ //
+            double change = Math.round(calculateChangeToReturn(price));
             coinsEntered.clear();
+            allocateCoinsToReturn(change);
             return drawer.removeProduct();
         } else{
             System.out.println("Please insert more coins to the value of GBP " + (price-calculateCoinsTotal()));

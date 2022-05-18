@@ -33,8 +33,10 @@ public class CoinReturnTest {
     @Test
     public void canCalculateCoinsTotal(){
         coinReturn.addCoin(coin1);
+        coinReturn.addCoin(coin1);
         coinReturn.addCoin(coin2);
-        assertEquals(1.05, coinReturn.calculateCoinsTotal(), 0.0);
+        coinReturn.addCoin(coin2);
+        assertEquals(2.10, coinReturn.calculateCoinsTotal(), 0.0);
 
 
     }
