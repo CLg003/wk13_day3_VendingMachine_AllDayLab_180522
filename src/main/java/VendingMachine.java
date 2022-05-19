@@ -7,6 +7,8 @@ import drawers.DrawerCode;
 import products.Product;
 //import java.lang.Double;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.ArrayList;
 
 import static java.lang.Double.compare;
@@ -82,26 +84,37 @@ public class VendingMachine implements ITotalCoins {
         return null;
     }
 
-    public double calculateChangeToReturn(double price){
-        return calculateCoinsTotal() - price;
+    public BigDecimal calculateChangeToReturn(double price){
+        MathContext m = new MathContext(3);
+        BigDecimal productPrice = BigDecimal.valueOf(price);
+        BigDecimal vendingMachineCredit = BigDecimal.valueOf(calculateCoinsTotal());
+        return vendingMachineCredit.subtract(productPrice).round(m);
     }
 
-    public void allocateCoinsToReturn(double change){
+    public void allocateCoinsToReturn(BigDecimal change){
+        MathContext m = new MathContext(3);
         Coin coin;
-        while (change > 0){
-            System.out.println("change > 0");
+        BigDecimal decimalChange = change;
+        BigDecimal zero = BigDecimal.valueOf(0.0);
+        while (decimalChange.compareTo(zero) > 0){
+            System.out.println("change = " + decimalChange);
             for (CoinType coinType : CoinType.values()){
-                System.out.println(coinType);
-                if (change > coinType.getValue()) {
-                    coin = new Coin(coinType);
-                    coinReturn.addCoin(coin);
-                    System.out.println(coinReturn.calculateCoinsTotal());
-                    change -= Math.round(coinType.getValue());
-//                    System.out.println(change);
+                if (coinType.isValid()) {
+                    System.out.println("Coins checking: " + coinType);
+                    double value = coinType.getValue();
+                    BigDecimal decimalValue = BigDecimal.valueOf(value);
+                    System.out.println("coin value: " + decimalValue);
+                    if (decimalChange.compareTo(decimalValue) > 0) {
+                        coin = new Coin(coinType);
+                        coinReturn.addCoin(coin);
+                        System.out.println("Change allocated = " + coinReturn.calculateCoinsTotal());
+                        decimalChange = decimalChange.subtract(decimalValue).round(m);
+                        System.out.println("Change to allocate = " + decimalChange);
 
+                    }
                 }
             }
-            if (Math.round(change) == 0) {
+            if (decimalChange.compareTo(zero) == 0) {
                 break;
             }
         }
@@ -111,9 +124,11 @@ public class VendingMachine implements ITotalCoins {
         Drawer drawer = getDrawerFromCode(code);
         double price = getPriceFromCode(code);
         if(Double.compare(calculateCoinsTotal(), price) >= 0 && price > 0){ //
-            double change = Math.round(calculateChangeToReturn(price));
+            BigDecimal change = (calculateChangeToReturn(price));
+            if(Double.compare(calculateCoinsTotal(), price) > 0) {
+                allocateCoinsToReturn(change);
+            }
             coinsEntered.clear();
-            allocateCoinsToReturn(change);
             return drawer.removeProduct();
         } else{
             System.out.println("Please insert more coins to the value of GBP " + (price-calculateCoinsTotal()));

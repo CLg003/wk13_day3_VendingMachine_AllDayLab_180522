@@ -8,6 +8,7 @@ import org.junit.Test;
 import products.Sweet;
 import sun.invoke.empty.Empty;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -113,14 +114,19 @@ public class VendingMachineTest {
         assertEquals(0.65, vendingMachine.getPriceFromCode(DrawerCode.A1),0.0);
     }
 
-//    @Test
-//    public void canBuySweet(){
-//        vendingMachine.insertCoin(coin);
-//        drawer.addProduct(sweet);
-//        assertEquals(sweet, vendingMachine.buyProduct(DrawerCode.A1));
-//        assertEquals(0, vendingMachine.calculateCoinsTotal(),0.0);
-//        assertEquals(0.35, coinReturn.calculateCoinsTotal(), 0.0);
-//    }
+    @Test
+    public void canBuySweet(){
+        vendingMachine.insertCoin(coin);
+        drawer.addProduct(sweet);
+        assertEquals(sweet, vendingMachine.buyProduct(DrawerCode.A1));
+        assertEquals(0, vendingMachine.calculateCoinsTotal(),0.0);
+        assertEquals(0.35, coinReturn.calculateCoinsTotal(), 0.0);
+    }
+
+    @Test
+    public void canAllocateCoinsForChange(){
+        vendingMachine.allocateCoinsToReturn(BigDecimal.valueOf(0.35));
+    }
 
     @Test
     public void canNotBuySweet(){
